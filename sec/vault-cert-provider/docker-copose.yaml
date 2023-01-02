@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  server:
+    build: .
+    ports:
+      - "8443:8443"
+  vault:
+    image: vault:1.12.2
+    ports:
+      - "8200:8200"
+    environment:
+      - VAULT_LOCAL_CONFIG: '{"storage": {"file": {"path": "/vault/file"}}, "listener": [{"tcp": { "address": "0.0.0.0:8200", "tls_disable": true}}], "default_lease_ttl": "168h", "max_lease_ttl": "720h", "ui": true}'
+    volumes:
+      - config/:/vault/config.d
+    cap_add:
+      - IPC_LOCK # from documentation of Vault image - this is required in order for Vault to lock memory, which prevents it from being swapped to disk. This is highly recommended
